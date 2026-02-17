@@ -26,6 +26,10 @@ func Setup(h *server.Hertz, cfg interface{}) {
 		doc := api.Group("/document")
 		{
 			doc.GET("/list", handler.GetDocumentList)
+			doc.GET("/open/:documentId", handler.OpenDocument)
+			doc.POST("/create", handler.CreateDocument)
+			doc.POST("/updateDocTitle", handler.UpdateDocumentTitle)
+			doc.DELETE("/delete/:documentId", handler.DeleteDocument)
 		}
 
 		// 节点相关

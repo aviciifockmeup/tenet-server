@@ -19,3 +19,10 @@ type Document struct {
 func (Document) TableName() string {
 	return "DocumentInfo"
 }
+
+// DocumentInfo 打开文档时返回的结构（文档信息+所有节点）
+type DocumentInfo struct {
+	DocumentId string `json:"documentId"`
+	Title      string `json:"title"`
+	Nodes      []Node `json:"nodes"`
+}
