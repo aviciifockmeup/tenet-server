@@ -1,53 +1,62 @@
 package config
 
 import (
-    "github.com/spf13/viper"
+	"github.com/spf13/viper"
 )
 
 // Config 全局配置
 type Config struct {
-    Server   ServerConfig   `mapstructure:"server"`
-    Database DatabaseConfig `mapstructure:"database"`
-    Log      LogConfig      `mapstructure:"log"`
+	Server   ServerConfig   `mapstructure:"server"`
+	Database DatabaseConfig `mapstructure:"database"`
+	Log      LogConfig      `mapstructure:"log"`
+	AI       AIConfig       `mapstructure:"ai"`
 }
 
 type ServerConfig struct {
-    Port int    `mapstructure:"port"`
-    Name string `mapstructure:"name"`
+	Port int    `mapstructure:"port"`
+	Name string `mapstructure:"name"`
 }
 
 type DatabaseConfig struct {
-    MySQL MySQLConfig `mapstructure:"mysql"`
-    Redis RedisConfig `mapstructure:"redis"`
+	MySQL MySQLConfig `mapstructure:"mysql"`
+	Redis RedisConfig `mapstructure:"redis"`
 }
 
 type MySQLConfig struct {
-    Host     string `mapstructure:"host"`
-    Port     int    `mapstructure:"port"`
-    Username string `mapstructure:"username"`
-    Password string `mapstructure:"password"`
-    Database string `mapstructure:"database"`
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+	Database string `mapstructure:"database"`
 }
 
 type RedisConfig struct {
-    Host string `mapstructure:"host"`
-    Port int    `mapstructure:"port"`
-    DB   int    `mapstructure:"db"`
+	Host string `mapstructure:"host"`
+	Port int    `mapstructure:"port"`
+	DB   int    `mapstructure:"db"`
 }
 
 type LogConfig struct {
-    Level string `mapstructure:"level"`
+	Level string `mapstructure:"level"`
+}
+
+type AIConfig struct {
+	DeepSeek DeepSeekConfig `mapstructure:"deepseek"`
+}
+
+type DeepSeekConfig struct {
+	APIKey string `mapstructure:"api_key"`
 }
 
 func Load(path string) (*Config, error) {
 	viper.SetConfigFile(path)
-	
-	if err:= viper.ReadInConfig(); err != nil {
+
+	if err := viper.ReadInConfig(); err != nil {
 		return nil, err
 	}
 
 	var cfg Config
-	if err:= viper.Unmarshal(&cfg); err != nil {
+	if err := viper.Unmarshal(&cfg); err != nil {
 		return nil, err
 	}
 	return &cfg, nil
