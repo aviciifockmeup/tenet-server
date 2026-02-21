@@ -33,8 +33,13 @@ func Setup(h *server.Hertz, cfg *config.Config, hub *ws.Hub) {
 	deepSeekProvider := service.NewDeepSeekProvider(cfg.AI.DeepSeek.APIKey)
 	aiService.RegisterProvider("deepseek", deepSeekProvider)
 
+	// 创建服务
+	agentService := service.NewAgentService()
+	toolCallService := service.NewToolCallService()
+
 	// 创建 AI Stream Handler
 	aiHandler := handler.NewAIStreamHandler(aiService)
+	aiSelectHandler := handler.NewAIStreamSelectHandler(agentService, toolCallService, aiService)
 
 	// API 路由组
 	api := h.Group("/api")
@@ -53,6 +58,7 @@ func Setup(h *server.Hertz, cfg *config.Config, hub *ws.Hub) {
 		aiStream := api.Group("/ai-stream")
 		{
 			aiStream.POST("/chat", aiHandler.StreamChat)
+			aiStream.POST("/select-tools", aiSelectHandler.SelectTools)
 		}
 		// 节点相关
 		node := api.Group("/node")

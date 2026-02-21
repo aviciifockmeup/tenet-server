@@ -62,3 +62,23 @@ func (s *ToolCallService) GetAllTools() ([]model.ToolCallDef, error) {
 	err := database.DB.Where("checkStatus = 0").Find(&tools).Error
 	return tools, err
 }
+
+// GetAllToolsBasicInfo 获取所有工具的轻量级信息（只包含 name 和 description）
+func (s *ToolCallService) GetAllToolsBasicInfo() ([]map[string]string, error) {
+	var toolDefs []model.ToolCallDef
+	result := database.DB.Where("checkStatus = ?", 0).Find(&toolDefs)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	// 只返回 name 和 description
+	tools := make([]map[string]string, 0, len(toolDefs))
+	for _, def := range toolDefs {
+		tools = append(tools, map[string]string{
+			"name":        def.Name,
+			"description": def.Description,
+		})
+	}
+
+	return tools, nil
+}
