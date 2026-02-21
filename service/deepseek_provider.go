@@ -55,7 +55,7 @@ func (p *DeepSeekProvider) StreamChat(ctx context.Context, req *model.AIStreamRe
 	}
 
 	// 3. 处理流式响应
-	return p.handleStream(resp.Body, c)
+	return p.handleStream(resp.Body, c, req)
 }
 
 // buildRequestBody 构建请求体
@@ -122,7 +122,7 @@ func (p *DeepSeekProvider) buildRequestBody(req *model.AIStreamRequest) []byte {
 }
 
 // handleStream 处理流式响应
-func (p *DeepSeekProvider) handleStream(body io.Reader, c *app.RequestContext) error {
+func (p *DeepSeekProvider) handleStream(body io.Reader, c *app.RequestContext, req *model.AIStreamRequest) error {
 	// 设置SSE响应头
 	c.SetContentType("text/event-stream")
 	c.Response.Header.Set("Cache-Control", "no-cache")
@@ -213,6 +213,20 @@ func (p *DeepSeekProvider) handleStream(body io.Reader, c *app.RequestContext) e
 		Content:   fullContent.String(),
 		ToolCalls: toolCalls,
 	})
+
+	// ========== 保存 Assistant 消息到数据库 ==========
+	if req.ConversationID != "" && req.AgentID != "" {
+		messageService := NewMessageService()
+		err := messageService.SaveAssistantMessage(
+			req.ConversationID,
+			req.AgentID,
+			fullContent.String(),
+			toolCalls,
+		)
+		if err != nil {
+			hlog.Errorf("保存Assistant消息失败: %v", err)
+		}
+	}
 
 	return nil
 }

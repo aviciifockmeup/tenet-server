@@ -66,6 +66,28 @@ func (h *AIStreamHandler) StreamChat(ctx context.Context, c *app.RequestContext)
 			zap.Strings("toolNames", req.ToolNames))
 	}
 
+	// ========== 对话持久化：保存用户消息 ==========
+	if req.ConversationID != "" && req.AgentID != "" {
+		conversationService := service.NewConversationService()
+		messageService := service.NewMessageService()
+
+		// 确保 Conversation 记录存在
+		err := conversationService.EnsureConversationExists(
+			req.ConversationID,
+			"user_id", // TODO: 从上下文或JWT中获取真实的userId
+			req.AgentID,
+		)
+		if err != nil {
+			zap.L().Error("Failed to ensure conversation exists", zap.Error(err))
+		}
+
+		// 保存用户消息和工具消息
+		err = messageService.SaveUserMessages(req.ConversationID, req.Messages, req.AgentID)
+		if err != nil {
+			zap.L().Error("Failed to save user messages", zap.Error(err))
+		}
+	}
+
 	// 检查必要参数
 	if req.Config == nil {
 		c.JSON(consts.StatusBadRequest, model.Error(model.CodeInvalidParam, "Missing agent ID or model config"))

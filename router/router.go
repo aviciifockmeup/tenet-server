@@ -36,10 +36,13 @@ func Setup(h *server.Hertz, cfg *config.Config, hub *ws.Hub) {
 	// 创建服务
 	agentService := service.NewAgentService()
 	toolCallService := service.NewToolCallService()
+	conversationService := service.NewConversationService()
+	messageService := service.NewMessageService()
 
 	// 创建 AI Stream Handler
 	aiHandler := handler.NewAIStreamHandler(aiService)
 	aiSelectHandler := handler.NewAIStreamSelectHandler(agentService, toolCallService, aiService)
+	conversationHandler := handler.NewConversationHandler(conversationService, messageService)
 
 	// API 路由组
 	api := h.Group("/api")
@@ -59,6 +62,14 @@ func Setup(h *server.Hertz, cfg *config.Config, hub *ws.Hub) {
 		{
 			aiStream.POST("/chat", aiHandler.StreamChat)
 			aiStream.POST("/select-tools", aiSelectHandler.SelectTools)
+		}
+
+		// 对话相关
+		conversation := api.Group("/conversation")
+		{
+			conversation.GET("/:conversationId/messages", conversationHandler.GetMessages)
+			conversation.POST("/create", conversationHandler.CreateConversation)
+			conversation.GET("/list", conversationHandler.ListConversations)
 		}
 		// 节点相关
 		node := api.Group("/node")

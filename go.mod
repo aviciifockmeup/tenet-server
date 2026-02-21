@@ -4,6 +4,7 @@ go 1.24.0
 
 require (
 	github.com/cloudwego/hertz v0.10.4
+	github.com/google/uuid v1.6.0
 	github.com/hertz-contrib/websocket v0.2.0
 	github.com/redis/go-redis/v9 v9.17.3
 	github.com/spf13/viper v1.21.0
