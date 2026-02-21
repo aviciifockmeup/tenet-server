@@ -1,1 +1,277 @@
-# tenet-server# Test commit
+# Tenet Server
+
+<div align="center">
+
+**基于 Hertz 框架的 AI 对话协作后端服务**
+
+</div>
+
+## 📖 项目简介
+
+Tenet Server 是一个高性能的 AI 对话协作后端服务，提供 AI 流式对话、实时协作、对话上下文持久化等核心功能。项目采用 Go 语言开发，基于 CloudWeGo Hertz 框架，支持 SSE 流式响应和 WebSocket 实时通信。
+
+### 核心特性
+
+- 🤖 **AI 智能对话** - 集成 DeepSeek AI 模型，支持 SSE 流式实时输出
+- 💾 **对话持久化** - 完整的对话上下文存储和历史记录管理
+- 🔧 **工具调用** - 支持 AI Function Calls 和工具选择
+- 🔄 **实时协作** - 基于 WebSocket 的多人实时协作和房间管理
+- ⚡ **高性能** - 基于 Hertz 框架，提供极致的性能体验
+- 📊 **Agent 管理** - 灵活的 AI Agent 配置和管理
+
+## 🏗️ 技术栈
+
+### 核心框架
+- **Go 1.24.0** - 编程语言
+- **Hertz 0.10.4** - CloudWeGo 高性能 HTTP 框架
+- **GORM 1.31.1** - ORM 框架
+
+### 数据存储
+- **MySQL 8.0+** - 关系型数据库
+- **Redis 6.0+** - 缓存和会话管理
+
+### 第三方集成
+- **DeepSeek API** - AI 对话服务
+
+### 工具库
+- **Zap** - 高性能日志库
+- **Viper** - 配置管理
+- **WebSocket** - 实时通信支持
+- **UUID** - 唯一标识生成
+
+## 📁 项目结构
+
+```
+tenet-server/
+├── main.go                           # 应用入口
+├── config/                           # 配置模块
+│   ├── config.yaml                   # 配置文件
+│   └── config.go                     # 配置加载
+├── handler/                          # 控制器层
+│   ├── ai_stream_handler.go          # AI 流式对话
+│   ├── ai_stream_select_handler.go   # AI 工具选择
+│   ├── conversation_handler.go       # 对话管理
+│   ├── room_handler.go               # 房间管理
+│   ├── ws_handler.go                 # WebSocket 处理
+│   ├── document.go                   # 文档管理
+│   └── node.go                       # 节点管理
+├── service/                          # 服务层
+│   ├── ai_provider.go                # AI 提供商接口
+│   ├── deepseek_provider.go          # DeepSeek 实现
+│   ├── agent_service.go              # Agent 服务
+│   ├── conversation_service.go       # 对话服务
+│   ├── message_service.go            # 消息服务
+│   ├── toolcall_service.go           # 工具调用服务
+│   ├── document.go                   # 文档服务
+│   └── node.go                       # 节点服务
+├── model/                            # 数据模型
+│   ├── ai_message.go                 # AI 消息模型
+│   ├── conversation.go               # 对话模型
+│   ├── agent.go                      # Agent 模型
+│   └── ...
+├── ws/                               # WebSocket 模块
+│   ├── hub.go                        # WebSocket Hub
+│   └── client.go                     # WebSocket Client
+├── dao/                              # 数据访问层
+├── database/                         # 数据库初始化
+├── logger/                           # 日志模块
+├── router/                           # 路由配置
+├── utils/                            # 工具类
+├── go.mod                            # Go 依赖管理
+└── go.sum                            # 依赖校验文件
+```
+
+## 🚀 快速开始
+
+### 环境要求
+
+- **Go 1.24.0** 或兼容版本
+- **MySQL 8.0+**
+- **Redis 6.0+**
+
+### 安装步骤
+
+1. **克隆项目**
+```bash
+git clone <repository-url>
+cd tenet-server
+```
+
+2. **配置数据库**
+```bash
+# 创建数据库
+mysql -u root -p
+CREATE DATABASE oolong CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+执行数据库迁移脚本（创建所需的表）。
+
+3. **修改配置文件**
+
+编辑 `config/config.yaml`，配置数据库连接：
+
+```yaml
+server:
+  port: 8081
+  name: tenet-server
+
+log:
+  level: debug  # debug / info / warn / error
+
+ai:
+  deepseek:
+    api_key: "your_deepseek_api_key"
+
+database:
+  mysql: 
+    host: localhost
+    port: 3306
+    username: root
+    password: your_password
+    database: oolong
+  redis:
+    host: localhost
+    port: 6379
+    db: 0
+```
+
+4. **安装依赖**
+```bash
+go mod download
+```
+
+5. **启动服务**
+```bash
+# 直接运行
+go run main.go
+
+# 或者先编译后运行
+go build -o tenet-server
+./tenet-server
+```
+
+6. **验证服务**
+```bash
+# 测试 AI 流式对话接口
+curl -X POST http://localhost:8081/api/ai-stream/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [
+      {"role": "user", "content": "你好"}
+    ],
+    "conversationId": "test-conv-001",
+    "agentId": "test-agent-001"
+  }'
+```
+
+服务默认运行在 `http://localhost:8081`
+
+## 📚 核心功能模块
+
+### 1. AI 智能对话
+
+- **流式响应** - 基于 SSE（Server-Sent Events）的实时流式输出
+- **多轮对话** - 支持完整的对话上下文管理
+- **工具调用** - 支持 AI Function Calls 和工具选择
+- **Agent 配置** - 可自定义的 AI Agent 配置
+- **提供商接口** - 可扩展的 AI 提供商接口设计
+
+**核心接口：**
+- `POST /api/ai-stream/chat` - AI 流式对话
+- `POST /api/ai-stream/select` - AI 工具选择
+
+### 2. 对话上下文持久化
+
+- **自动持久化** - AI 对话自动保存到数据库
+- **历史记录** - 完整的对话历史查询
+- **消息去重** - 基于 messageId 的智能去重
+- **序列管理** - 严格的消息顺序保证
+
+**核心接口：**
+- `POST /api/conversation/create` - 创建对话
+- `GET /api/conversation/list` - 获取对话列表
+- `GET /api/conversation/:id/messages` - 获取对话消息
+
+### 3. WebSocket 实时协作
+
+- **房间管理** - 支持多房间隔离
+- **实时通信** - 用户间实时消息推送
+- **在线状态** - 房间成员在线状态管理
+- **广播消息** - 房间内消息广播
+
+**核心接口：**
+- `GET /ws` - WebSocket 连接
+- `POST /api/room/join` - 加入房间
+- `POST /api/room/leave` - 离开房间
+- `POST /api/room/broadcast` - 广播消息
+
+### 4. 文档管理
+
+- **文档 CRUD** - 基础的文档管理功能
+- **节点操作** - 文档节点的增删改查
+
+**核心接口：**
+- `POST /api/document` - 创建文档
+- `GET /api/document/:id` - 获取文档
+- `POST /api/node` - 创建节点
+
+## 🔧 开发指南
+
+### 添加新的 AI 提供商
+
+1. 在 `service/` 目录下创建新的提供商实现
+2. 实现 `AIProvider` 接口：
+```go
+type AIProvider interface {
+    Chat(ctx context.Context, req *model.AIStreamRequest, resp *app.RequestContext) error
+}
+```
+3. 在 `handler/ai_stream_handler.go` 中注册新提供商
+
+### 扩展 WebSocket 功能
+
+1. 在 `ws/hub.go` 中添加新的消息类型
+2. 在 `ws/client.go` 中处理新的消息
+3. 更新 `handler/ws_handler.go` 处理逻辑
+
+### 数据模型迁移
+
+使用 GORM 的 AutoMigrate 功能：
+```go
+database.DB.AutoMigrate(&model.YourModel{})
+```
+
+## 📄 技术文档
+
+项目包含详细的技术文档：
+
+- [AI_STREAM_IMPLEMENTATION.md](AI_STREAM_IMPLEMENTATION.md) - AI 流式对话实现方案
+- [CONVERSATION_PERSISTENCE.md](CONVERSATION_PERSISTENCE.md) - 对话持久化技术方案
+- [WEBSOCKET_ROOM_IMPLEMENTATION.md](WEBSOCKET_ROOM_IMPLEMENTATION.md) - WebSocket 房间管理方案
+- [AI_TOOL_SELECTION_IMPLEMENTATION.md](AI_TOOL_SELECTION_IMPLEMENTATION.md) - AI 工具选择实现方案
+
+## 📊 依赖列表
+
+主要依赖包：
+
+```
+github.com/cloudwego/hertz v0.10.4        # HTTP 框架
+gorm.io/gorm v1.31.1                      # ORM 框架
+gorm.io/driver/mysql v1.6.0               # MySQL 驱动
+github.com/redis/go-redis/v9 v9.17.3      # Redis 客户端
+github.com/hertz-contrib/websocket v0.2.0 # WebSocket 支持
+go.uber.org/zap v1.27.1                   # 日志库
+github.com/spf13/viper v1.21.0            # 配置管理
+github.com/google/uuid v1.6.0             # UUID 生成
+```
+
+## 🤝 开发规范
+
+- 遵循 Go 代码规范和最佳实践
+- 使用有意义的命名和注释
+- 保持代码简洁和模块化
+- 错误处理要完整和清晰
+
+## 📝 License
+
+MIT License
