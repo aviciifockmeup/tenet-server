@@ -2,22 +2,24 @@
 
 <div align="center">
 
-**基于 Hertz 框架的 AI 对话协作后端服务**
+**Tenet 画板 - 后端服务**
+
+基于 Hertz 框架的流程图/架构图协作后端系统
 
 </div>
 
 ## 📖 项目简介
 
-Tenet Server 是一个高性能的 AI 对话协作后端服务，提供 AI 流式对话、实时协作、对话上下文持久化等核心功能。项目采用 Go 语言开发，基于 CloudWeGo Hertz 框架，支持 SSE 流式响应和 WebSocket 实时通信。
+Tenet Server 是 Tenet 画板的核心后端服务，提供流程图/架构图绘制、多人实时协作、AI 辅助等功能。项目采用 Go 语言开发，基于 CloudWeGo Hertz 框架，支持 WebSocket 实时通信和 AI 流式响应。
 
 ### 核心特性
 
-- 🤖 **AI 智能对话** - 集成 DeepSeek AI 模型，支持 SSE 流式实时输出
-- 💾 **对话持久化** - 完整的对话上下文存储和历史记录管理
-- 🔧 **工具调用** - 支持 AI Function Calls 和工具选择
-- 🔄 **实时协作** - 基于 WebSocket 的多人实时协作和房间管理
-- ⚡ **高性能** - 基于 Hertz 框架，提供极致的性能体验
-- 📊 **Agent 管理** - 灵活的 AI Agent 配置和管理
+- 🎨 **画板绘制** - 支持流程图、架构图等多种图表类型
+- 🤖 **AI 助手** - 集成 DeepSeek AI 模型，支持 SSE 流式响应和工具调用
+- 🔄 **实时协作** - 基于 WebSocket 的多人协作和房间管理
+- 📝 **文档管理** - 画板文档和图形节点的存储管理
+- 💬 **对话功能** - AI 对话交互和上下文持久化
+- 🎯 **Agent 配置** - 可自定义的 AI Agent 配置和管理
 
 ## 🏗️ 技术栈
 
@@ -168,52 +170,59 @@ curl -X POST http://localhost:8081/api/ai-stream/chat \
 
 ## 📚 核心功能模块
 
-### 1. AI 智能对话
+### 1. 画板文档与节点管理
 
-- **流式响应** - 基于 SSE（Server-Sent Events）的实时流式输出
-- **多轮对话** - 支持完整的对话上下文管理
-- **工具调用** - 支持 AI Function Calls 和工具选择
-- **Agent 配置** - 可自定义的 AI Agent 配置
-- **提供商接口** - 可扩展的 AI 提供商接口设计
+- **画板 CRUD** - 创建、读取、更新、删除画板文档
+- **节点管理** - 支持矩形、圆形、连线等图形节点的增删改查
+- **布局存储** - 保存节点位置、样式、连接关系等数据
+- **版本追踪** - 画板内容的版本管理
+
+**核心接口：**
+- `POST /api/document` - 创建画板文档
+- `GET /api/document/:id` - 获取画板文档
+- `PUT /api/document/:id` - 更新画板文档
+- `DELETE /api/document/:id` - 删除画板文档
+- `POST /api/node` - 创建图形节点
+- `PUT /api/node/:id` - 更新节点
+- `DELETE /api/node/:id` - 删除节点
+
+### 2. 多人实时协作
+
+- **房间管理** - 每个画板对应一个协作房间，支持多房间隔离
+- **实时同步** - 用户的绘图操作实时广播给其他成员
+- **在线状态** - 显示当前在线成员和编辑状态
+- **操作广播** - 节点创建、移动、删除等操作的实时推送
+- **冲突处理** - 协作冲突的检测和处理
+
+**核心接口：**
+- `GET /ws` - 建立 WebSocket 连接
+- `POST /api/room/join` - 加入画板协作房间
+- `POST /api/room/leave` - 离开房间
+- `POST /api/room/broadcast` - 广播操作消息
+
+### 3. AI 助手
+
+- **AI 对话** - 通过自然语言与 AI 交流，描述想要创建的图表
+- **流式响应** - 基于 SSE 的实时流式输出
+- **工具调用** - 支持 AI Function Calls，AI 可直接操作画板
+- **Agent 配置** - 可自定义的 AI Agent 配置和管理
 
 **核心接口：**
 - `POST /api/ai-stream/chat` - AI 流式对话
 - `POST /api/ai-stream/select` - AI 工具选择
 
-### 2. 对话上下文持久化
+### 4. 对话上下文管理
 
-- **自动持久化** - AI 对话自动保存到数据库
-- **历史记录** - 完整的对话历史查询
-- **消息去重** - 基于 messageId 的智能去重
+- **对话存储** - AI 对话自动保存到数据库
+- **历史查询** - 查看完整的 AI 对话历史
+- **上下文恢复** - 继续之前的对话，保持上下文连贯
+- **消息去重** - 基于 messageId 的去重机制
 - **序列管理** - 严格的消息顺序保证
 
 **核心接口：**
-- `POST /api/conversation/create` - 创建对话
+- `POST /api/conversation/create` - 创建对话会话
 - `GET /api/conversation/list` - 获取对话列表
-- `GET /api/conversation/:id/messages` - 获取对话消息
-
-### 3. WebSocket 实时协作
-
-- **房间管理** - 支持多房间隔离
-- **实时通信** - 用户间实时消息推送
-- **在线状态** - 房间成员在线状态管理
-- **广播消息** - 房间内消息广播
-
-**核心接口：**
-- `GET /ws` - WebSocket 连接
-- `POST /api/room/join` - 加入房间
-- `POST /api/room/leave` - 离开房间
-- `POST /api/room/broadcast` - 广播消息
-
-### 4. 文档管理
-
-- **文档 CRUD** - 基础的文档管理功能
-- **节点操作** - 文档节点的增删改查
-
-**核心接口：**
-- `POST /api/document` - 创建文档
-- `GET /api/document/:id` - 获取文档
-- `POST /api/node` - 创建节点
+- `GET /api/conversation/:id/messages` - 获取对话消息历史
 
 ## 🔧 开发指南
 
