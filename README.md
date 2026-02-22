@@ -142,7 +142,7 @@ database:
 
 4. **安装依赖**
 ```bash
-go mod download
+go mod tidy
 ```
 
 5. **启动服务**
